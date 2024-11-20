@@ -54,19 +54,20 @@ InputData readInputData(const std::string& filename) {
     std::string line;
     // Четене на първия ред (размери на залата, време на лектора, време за проверка)
     std::getline(file, line);
-    std::istringstream ss(line);
-    ss >> inputData.roomInfo.N >> inputData.roomInfo.M >> inputData.roomInfo.L >> inputData.roomInfo.C;
+    std::istringstream streemLine(line);
+    streemLine >> inputData.roomInfo.N >> inputData.roomInfo.M >> inputData.roomInfo.L >> inputData.roomInfo.C;
 
     // Четене на броя счупени седалки
     std::getline(file, line);
-    inputData.roomInfo.brokenSeatsCount = std::stoi(line);
+    streemLine = std::istringstream(line);
+    streemLine >> inputData.roomInfo.brokenSeatsCount;
 
     // Четене на индексите на счупените седалки
     if (inputData.roomInfo.brokenSeatsCount > 0) {
         std::getline(file, line);
-        std::istringstream seatStream(line);
+        streemLine = std::istringstream(line);
         int seatIndex;
-        while (seatStream >> seatIndex) {
+        while (streemLine >> seatIndex) {
             inputData.roomInfo.brokenSeats.push_back(seatIndex);
         }
     }
@@ -75,20 +76,20 @@ InputData readInputData(const std::string& filename) {
     while (std::getline(file, line)) {
         if (line == "end") break;
 
-        std::istringstream eventStream(line);
+        streemLine = std::istringstream(line);
         std::string eventType;
-        eventStream >> eventType;
+        streemLine >> eventType;
 
         if (eventType == "enter") {
             Event event;
             event.type = "enter";
-            eventStream >> event.time >> event.facultyNumber >> event.duration >> event.course;
+            streemLine >> event.time >> event.facultyNumber >> event.duration >> event.course;
             inputData.events.push_back(event);
         }
         else if (eventType == "exit") {
             Event event;
             event.type = "exit";
-            eventStream >> event.time >> event.facultyNumber;
+            streemLine >> event.time >> event.facultyNumber;
             inputData.events.push_back(event);
         }
     }
