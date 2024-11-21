@@ -1,16 +1,23 @@
-﻿#include <iostream>
+﻿#include <fstream>
+#include <sstream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <tuple>
 
 // Структура за информацията за залата
 struct RoomInfo {
-    int N;                     // Брой редове в залата
-    int M;                     // Брой колони в залата
+    int rows;                     // Брой редове в залата
+    int cols;                     // Брой колони в залата
     int L;                     // Минути на пристигане на лектора
     int C;                     // Време за проверка на една работа
     int brokenSeatsCount;      // Брой счупени седалки
     std::vector<int> brokenSeats; // Индекси на счупените седалки
+};
+
+struct LectorInfo {
+    int arrivalMunute;                     // Минути на пристигане на лектора
+    int timeForCheck;                     // Време за проверка на една работа
 };
 
 // Структура за информацията за студент
@@ -32,7 +39,84 @@ struct Event {
 
 // Структура за цялостния вход
 struct InputData {
-    RoomInfo roomInfo;                 // Информация за залата
-    std::vector<StudentInfo> students; // Информация за студентите
-    std::vector<Event> events;         // Списък със събития
+    // Входна информация за залата
+    RoomInfo roomInfo;
+    // Входна информация за лектора
+    LectorInfo lectorInfo;
+    // ???
+    std::vector<StudentInfo> students;
+    // Списък със събития
+    std::vector<Event> events;         
+};
+
+enum SeatState {
+    Broken,  
+    Free,    
+    Occupied 
+};
+
+struct RoomConfiguration {
+    int rows;                             
+    int cols;
+    int capacity = 0;
+    std::vector<std::vector<SeatState>> layout; 
+
+    RoomConfiguration(int rows, int cols) : rows(rows), cols(cols), layout(rows, std::vector<SeatState>(cols, SeatState::Free)) {}
+
+    void markSeatsAsBroken(int index) 
+    {
+        if (index > cols * rows)
+        {
+            return;
+        }
+        int r = index / cols; 
+        int c = index % cols; 
+        layout[r][c] = SeatState::Broken;
+    }
+    
+    void fillOccupiedSeats(int startRow, int startCols) 
+    {
+        capacity = 0;
+
+        for (int i = startCols; i < cols; i += 2)
+        {
+            for (int j = startRow; j < rows; j += 2)
+            {
+                if (layout[i][j] != SeatState::Broken)
+                {
+                    layout[i][j] = SeatState::Occupied;
+                }
+            }
+        }
+
+        for (int i = 0; i < cols; i ++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                if ((layout[i][j] == SeatState::Free) &&
+                    ( i == 0 || j == 0 || (layout[i-1][j-1] != SeatState::Occupied)) &&
+                    (i == 0 (layout[i-1][j] != SeatState::Occupied)) &&
+                    (j == 0 || (layout[i][j-1] != SeatState::Occupied)) &&
+                    (i == cols-1 || j == rows -1 || (layout[i+1][j+1] != SeatState::Occupied)) &&
+                    (i == cols-1 || (layout[i+1][j] != SeatState::Occupied)) &&
+                    (j == rows-1 || (layout[i][j+1] != SeatState::Occupied)))
+
+                {
+                    layout[i][j] = SeatState::Occupied;
+                }
+            }
+        }
+
+        for (int i = 0; i < cols; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                if (layout[i][j] == SeatState::Occupied)
+                {
+                    capacity++;
+                }
+            }
+        }
+    }
+
 };
