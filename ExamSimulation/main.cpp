@@ -13,7 +13,7 @@ InputData readInputData(const std::string& filename) {
     // Четене на първия ред (размери на залата, време на лектора, време за проверка)
     std::getline(file, line);
     std::istringstream streemLine(line);
-    streemLine >> inputData.roomInfo.rows >> inputData.roomInfo.cols >> inputData.lectorInfo.arrivalMunute >> inputData.lectorInfo.timeForCheck;
+    streemLine >> inputData.roomInfo.cols >> inputData.roomInfo.rows >>  inputData.lectorInfo.arrivalMunute >> inputData.lectorInfo.timeForCheck;
 
     // Четене на броя счупени седалки
     std::getline(file, line);
@@ -59,6 +59,23 @@ InputData readInputData(const std::string& filename) {
 RoomConfiguration CenerateOptimalRoomConfiguratin(InputData& inputData)
 {
     RoomConfiguration optimal(inputData.roomInfo.cols, inputData.roomInfo.rows);
+    
+    for (int i = 0; i <= 1; i++)
+    {
+        for (int j = 0; i <= 1; i++)
+        {
+            RoomConfiguration roomConfiguratn(inputData.roomInfo.cols, inputData.roomInfo.rows);
+            for (int index : inputData.roomInfo.brokenSeats)
+            {
+                roomConfiguratn.markSeatsAsBroken(index);
+            }
+            roomConfiguratn.fillOccupiedSeats(i, j);
+            if (optimal.capacity < roomConfiguratn.capacity)
+            {
+                optimal = roomConfiguratn;
+            }
+        }
+    }
 
     return optimal;
 }
@@ -67,6 +84,9 @@ RoomConfiguration CenerateOptimalRoomConfiguratin(InputData& inputData)
 int main() {
     try {
         InputData inputData = readInputData("input.txt");
+        RoomConfiguration optimalRoomConfiguration = CenerateOptimalRoomConfiguratin(inputData);
+        optimalRoomConfiguration.PrintRoomConfiguratoin(std::cout);
+
 
         // Примерен достъп до данни
         std::cout << "Room dimensions: " << inputData.roomInfo.rows << "x" << inputData.roomInfo.cols << std::endl;
