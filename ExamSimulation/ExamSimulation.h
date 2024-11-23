@@ -133,10 +133,9 @@ struct RoomConfiguration {
 	}
 };
 
-
-
 // ----------------------------------------
-	// обвивка за queue с приоритетна функционалност
+
+// обвивка за queue с приоритетна функционалност
 struct StudentQueueWrapper
 {
 private:
@@ -263,41 +262,35 @@ struct ExamRoom {
 
 		return result;
 	}
+};
 
+void ProcessExam(InputData inputData, int roomCapacity)
+{
 
-	void ProcessExam(InputData inputData, int roomCapacity)
+	int GlobalTime = 0;
+
+	// 1. Опапка с вдодните данне
+	std::queue<StudentInfo> studentArrivalData;
+	for (StudentInfo studentInfo : inputData.studentsArraival)
 	{
-
-		int GlobalTime = 0;
-
-		// 1. Опапка с вдодните данне
-		std::queue<StudentInfo> studentArrivalData;
-		for (StudentInfo studentInfo : inputData.studentsArraival)
-		{
-			studentArrivalData.push(studentInfo);
-		}
-
-		// 2. Приоритизирана опашка, за студентите пред залата
-		StudentQueueWrapper studentQueue;
-
-		// 3. обект wrapper с приоретизирана опаша за студентите в залата
-		ExamRoom examRoom(roomCapacity);
-
-		// 4. Stack за непроверените работи
-		std::stack<StudentInfo> unckeckExdam;
-
-		// 5. Stack за проверените работи
-		std::stack<StudentInfo> readyExdam;
-
-		while (!studentArrivalData.empty() || !studentQueue.isEmpty())
-		{
-
-		}
-
-
-
+		studentArrivalData.push(studentInfo);
 	}
 
+	// 2. Приоритизирана опашка, за студентите пред залата
+	StudentQueueWrapper studentQueue;
 
+	// 3. обект wrapper с приоретизирана опаша за студентите в залата
+	ExamRoom examRoom(roomCapacity);
 
-};
+	// 4. Stack за непроверените работи
+	std::stack<StudentInfo> unckeckExdam;
+
+	// 5. Stack за проверените работи
+	std::stack<StudentInfo> readyExdam;
+
+	while (!studentArrivalData.empty() || !studentQueue.isEmpty())
+	{
+		break;
+	}
+
+}
