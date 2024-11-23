@@ -9,8 +9,6 @@
 struct RoomInfo {
 	int rows;                     // Брой редове в залата
 	int cols;                     // Брой колони в залата
-	int L;                     // Минути на пристигане на лектора
-	int C;                     // Време за проверка на една работа
 	int brokenSeatsCount;      // Брой счупени седалки
 	std::vector<int> brokenSeats; // Индекси на счупените седалки
 };
@@ -20,33 +18,20 @@ struct LectorInfo {
 	int timeForCheck;                     // Време за проверка на една работа
 };
 
-// Структура за информацията за студент
-struct StudentInfo {
-	int time;                  // Минути след началото на изпита
-	int facultyNumber;         // Последните три цифри на факултетния номер
-	int examDuration;          // Време за изпита
-	int course;                // Курс на студента (2, 3 или 4)
-};
 
-// Структура за събития
-struct Event {
-	std::string type;          // Тип на събитието: "enter" или "exit"
-	int time;                  // Време на събитието
-	int facultyNumber;         // Факултетен номер (само за "enter")
-	int duration;              // Продължителност на изпита (само за "enter")
-	int course;                // Курс на студента (само за "enter")
+// Структура за пристигането на студентите
+struct StudentInfo {
+	int time;                  
+	int facultyNumber;         
+	int duration;              
+	int course;                
 };
 
 // Структура за цялостния вход
 struct InputData {
-	// Входна информация за залата
 	RoomInfo roomInfo;
-	// Входна информация за лектора
 	LectorInfo lectorInfo;
-	// ???
-	std::vector<StudentInfo> students;
-	// Списък със събития
-	std::vector<Event> events;
+	std::vector<StudentInfo> studentsArraival;
 };
 
 enum SeatState {

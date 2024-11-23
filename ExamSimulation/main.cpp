@@ -1,4 +1,5 @@
 ﻿#include "ExamSimulation.h"
+#include "ProcessExam.h"
 
 
 InputData readInputData(const std::string& filename) {
@@ -39,16 +40,9 @@ InputData readInputData(const std::string& filename) {
         streemLine >> eventType;
 
         if (eventType == "enter") {
-            Event event;
-            event.type = "enter";
-            streemLine >> event.time >> event.facultyNumber >> event.duration >> event.course;
-            inputData.events.push_back(event);
-        }
-        else if (eventType == "exit") {
-            Event event;
-            event.type = "exit";
-            streemLine >> event.time >> event.facultyNumber;
-            inputData.events.push_back(event);
+            StudentInfo studentInfo;
+            streemLine >> studentInfo.time >> studentInfo.facultyNumber >> studentInfo.duration >> studentInfo.course;
+            inputData.studentsArraival.push_back(studentInfo);
         }
     }
 
@@ -90,20 +84,20 @@ int main() {
 
         // Примерен достъп до данни
         std::cout << "Room dimensions: " << inputData.roomInfo.rows << "x" << inputData.roomInfo.cols << std::endl;
-        std::cout << "Lecturer arrival: " << inputData.roomInfo.L << " minutes" << std::endl;
+        std::cout << "Lecturer arrival: " << inputData.lectorInfo.arrivalMunute << " minutes" << std::endl;
+        std::cout << "Lecturer time to check: " << inputData.lectorInfo.timeForCheck << " minutes" << std::endl;
         std::cout << "Broken seats count: " << inputData.roomInfo.brokenSeatsCount << std::endl;
 
         for (const auto& seat : inputData.roomInfo.brokenSeats) {
             std::cout << "Broken seat index: " << seat << std::endl;
         }
 
-        for (const auto& event : inputData.events) {
-            std::cout << "Event: " << event.type << " at time " << event.time;
-            if (event.type == "enter") {
-                std::cout << ", Faculty Number: " << event.facultyNumber
-                    << ", Duration: " << event.duration
-                    << ", Course: " << event.course;
-            }
+        for (const auto& event : inputData.studentsArraival) {
+            std::cout << "Event: at time " << event.time;
+            std::cout << ", Faculty Number: " << event.facultyNumber
+                      << ", Duration: " << event.duration
+                      << ", Course: " << event.course;
+            
             std::cout << std::endl;
         }
     }
