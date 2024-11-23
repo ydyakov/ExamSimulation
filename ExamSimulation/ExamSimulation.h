@@ -288,7 +288,8 @@ void ProcessExam(InputData inputData, int roomCapacity)
 	// 5. Stack за проверените работи
 	std::stack<StudentInfo> readyExdam;
 
-	while (!studentArrivalData.empty() || !studentQueue.isEmpty())
+	// procesing students exam
+	while (!studentArrivalData.empty() || !studentQueue.isEmpty() || !examRoom.students.empty())
 	{
 		break;
 	}
