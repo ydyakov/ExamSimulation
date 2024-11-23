@@ -332,29 +332,30 @@ void ProcessExam(InputData inputData, int roomCapacity)
 			{
 				int lectorTimeInterval = GlobalTime = LectorStartToWork;
 				int checkedCount = lectorTimeInterval / inputData.lectorInfo.timeForCheck;
-				int count = 0;
-				while (count < checkedCount && !unckeckExdam.empty())
+				int count = 1;
+				while (count <= checkedCount && !unckeckExdam.empty())
 				{
 					StudentRecord studentRecord = unckeckExdam.top();
 					studentRecord.finishTime = LectorStartToWork + count * inputData.lectorInfo.timeForCheck;
 					readyExdam.push(studentRecord);
 					unckeckExdam.pop();
+					count++;
 				}
 
 				bool holdExamInHands = !unckeckExdam.empty() && lectorTimeInterval % inputData.lectorInfo.timeForCheck != 0;
 				if (holdExamInHands)
 				{
 					StudentRecord studentRecord = unckeckExdam.top();
-					studentRecord.finishTime = LectorStartToWork +  (count + 1)  *  inputData.lectorInfo.timeForCheck;
+					studentRecord.finishTime = LectorStartToWork +  (checkedCount + 1)  *  inputData.lectorInfo.timeForCheck;
 					readyExdam.push(studentRecord);
 					unckeckExdam.pop();
-					LectorStartToWork = LectorStartToWork + (count + 1) * inputData.lectorInfo.timeForCheck;
+					LectorStartToWork = LectorStartToWork + (checkedCount + 1) * inputData.lectorInfo.timeForCheck;
 				}
 				else
 				{
 					if (!unckeckExdam.empty())
 					{
-						LectorStartToWork = LectorStartToWork + (count) * inputData.lectorInfo.timeForCheck;
+						LectorStartToWork = LectorStartToWork + (checkedCount) * inputData.lectorInfo.timeForCheck;
 					}
 					else
 					{
@@ -370,6 +371,17 @@ void ProcessExam(InputData inputData, int roomCapacity)
 			{
 				unckeckExdam.push(studentRecord);
 			}
+		}
+
+		// update rest of unchecket to checked exam
+		int count = 1;
+		while (!unckeckExdam.empty())
+		{
+			StudentRecord studentRecord = unckeckExdam.top();
+			studentRecord.finishTime = LectorStartToWork + count * inputData.lectorInfo.timeForCheck;
+			readyExdam.push(studentRecord);
+			unckeckExdam.pop();
+			count++;
 		}
 		
 	}
