@@ -5,6 +5,7 @@
 #include <string>
 #include <tuple>
 #include <queue>
+#include <stack>
 
 // Структура за информацията за залата
 struct RoomInfo {
@@ -22,10 +23,10 @@ struct LectorInfo {
 
 // Структура за пристигането на студентите
 struct StudentInfo {
-	int time;                  
-	int facultyNumber;         
-	int duration;              
-	int course;                
+	int time;
+	int facultyNumber;
+	int duration;
+	int course;
 };
 
 // Структура за цялостния вход
@@ -130,87 +131,172 @@ struct RoomConfiguration {
 			ostreem << std::endl;
 		}
 	}
+};
+
 
 
 // ----------------------------------------
+	// обвивка за queue с приоритетна функционалност
+struct StudentQueueWrapper
+{
+private:
+	std::queue<StudentInfo> queue;
 
-	int time = 0;
-
-	// Функция за сравнение на студентите за приоритизирана опашка
-	struct CompareStudents {
-		bool operator()(const StudentInfo& s1, const StudentInfo& s2) const {
-			// Курс 2 има по-висок приоритет
-			if (s1.course != s2.course) {
-				return s1.course > s2.course;  // По-нисък курс -> по-висок приоритет
-			}
-			// Ако курсът е еднакъв, по-ранното време има предимство
-			return s1.time > s2.time;
-		}
-	};
-
-	// Дефиниция на приоритизираната опашка за студентите пред залата
-	using StudentQueue = std::priority_queue<StudentInfo, std::vector<StudentInfo>, CompareStudents>;
-
-	// Структура за запис на студент в залата
-	struct StudentRecord {
-		int facultyNumber; 
-		int finishTime;    
-	};
-
-	// Структура за залата
-	struct ExamRoom {
-		int capacity;                         // Максимален брой места
-		std::vector<StudentRecord> students; // Списък със записаните студенти
-
-		// Конструктор
-		ExamRoom(int maxCapacity) : capacity(maxCapacity) {}
-
-		bool addStudent(int facultyNumber, int finishTime) {
-			if (students.size() < capacity) {
-				students.push_back({ facultyNumber, finishTime });
-				return true; // Успешно добавяне
-			}
-			else {
-				std::cout << "Room is full! Cannot add student " << facultyNumber << ".\n";
-				return false; // Няма свободни места
-			}
+public:
+	// Функция за добавяне на елементи в опашката с приоритет
+	void enqueue(const StudentInfo& student) {
+		// Ако опашката е празна, просто добавяме елемента
+		if (queue.empty()) {
+			queue.push(student);
+			return;
 		}
 
-		// Премахване на студенти с минимално време
-		std::vector<StudentRecord> removeStudentWithMinTime() {
-			std::vector<StudentRecord> result;
+		// Помощен контейнер за временно съхранение
+		std::queue<StudentInfo> tempQueue;
+		bool inserted = false;
 
-			if (students.empty()) {
-				return result; 
+		// Прехвърляне на елементите, спазвайки приоритета
+		while (!queue.empty()) {
+			const StudentInfo& current = queue.front();
+
+			if (!inserted && (student.course == 2 && student.course < current.course))
+			{
+				tempQueue.push(student);
+				inserted = true;
 			}
 
-			// Намираме минималното време за приключване
-			int minTime = std::min_element(students.begin(), students.end(),
-				[](const StudentRecord& a, const StudentRecord& b) {
-					return a.finishTime < b.finishTime;
-				})->finishTime;
+			tempQueue.push(current);
+			queue.pop();
+		}
 
-			// Събираме всички студенти с това минимално време
-			for (const auto& student : students) {
-				if (student.finishTime == minTime) {
-					result.push_back(student);
-				}
-			}
+		// Ако елементът не е добавен (т.е. има най-нисък приоритет), добавяме го накрая
+		if (!inserted) {
+			tempQueue.push(student);
+		}
 
-			// Премахваме всички студенти с това минимално време
-			students.erase(
-				std::remove_if(students.begin(), students.end(),
-					[minTime](const StudentRecord& student) {
-						return student.finishTime == minTime;
-					}),
-				students.end());
+		// Прехвърляне обратно в основната опашка
+		queue = std::move(tempQueue);
+	}
 
+	// Функция за премахване на първия елемент
+	StudentInfo dequeue() {
+		if (queue.empty()) {
+			throw std::runtime_error("Queue is empty!");
+		}
+		StudentInfo frontStudent = queue.front();
+		queue.pop();
+		return frontStudent;
+	}
+
+	// Проверка дали опашката е празна
+	bool isEmpty() const {
+		return queue.empty();
+	}
+
+	// Връщане на размера на опашката
+	size_t size() const {
+		return queue.size();
+	}
+};
+
+// Структура за запис на студент в залата
+struct StudentRecord {
+	int facultyNumber;
+	int finishTime;
+};
+
+// Структура за залата
+struct ExamRoom {
+	int capacity;                         // Максимален брой места
+	std::vector<StudentRecord> students; // Списък със записаните студенти
+
+	// Конструктор
+	ExamRoom(int maxCapacity) : capacity(maxCapacity) {}
+
+	bool addStudent(int facultyNumber, int finishTime) {
+		if (students.size() < capacity) {
+			students.push_back({ facultyNumber, finishTime });
+			return true; // Успешно добавяне
+		}
+		else {
+			return false; // Няма свободни места
+		}
+	}
+
+	int minTime()
+	{
+		int minTime = std::min_element(students.begin(), students.end(),
+			[](const StudentRecord& a, const StudentRecord& b) {
+				return a.finishTime < b.finishTime;
+			})->finishTime;
+
+		return minTime;
+	}
+	// Премахване на студенти с минимално време
+	std::vector<StudentRecord> removeStudentWithMinTime() {
+		std::vector<StudentRecord> result;
+
+		if (students.empty()) {
 			return result;
 		}
 
-		
-	};
+		// Намираме минималното време за приключване
+		int minTime = std::min_element(students.begin(), students.end(),
+			[](const StudentRecord& a, const StudentRecord& b) {
+				return a.finishTime < b.finishTime;
+			})->finishTime;
 
+		// Събираме всички студенти с това минимално време
+		for (const auto& student : students) {
+			if (student.finishTime == minTime) {
+				result.push_back(student);
+			}
+		}
+
+		// Премахваме всички студенти с това минимално време
+		students.erase(
+			std::remove_if(students.begin(), students.end(),
+				[minTime](const StudentRecord& student) {
+					return student.finishTime == minTime;
+				}),
+			students.end());
+
+		return result;
+	}
+
+
+	void ProcessExam(InputData inputData, int roomCapacity)
+	{
+
+		int GlobalTime = 0;
+
+		// 1. Опапка с вдодните данне
+		std::queue<StudentInfo> studentArrivalData;
+		for (StudentInfo studentInfo : inputData.studentsArraival)
+		{
+			studentArrivalData.push(studentInfo);
+		}
+
+		// 2. Приоритизирана опашка, за студентите пред залата
+		StudentQueueWrapper studentQueue;
+
+		// 3. обект wrapper с приоретизирана опаша за студентите в залата
+		ExamRoom examRoom(roomCapacity);
+
+		// 4. Stack за непроверените работи
+		std::stack<StudentInfo> unckeckExdam;
+
+		// 5. Stack за проверените работи
+		std::stack<StudentInfo> readyExdam;
+
+		while (!studentArrivalData.empty() || !studentQueue.isEmpty())
+		{
+
+		}
+
+
+
+	}
 
 
 

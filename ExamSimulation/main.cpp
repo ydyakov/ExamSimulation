@@ -105,6 +105,24 @@ int main() {
         std::cerr << "Error: " << ex.what() << std::endl;
     }
 
+    StudentQueueWrapper studentQueue;
+
+    // Добавяме няколко студенти
+    studentQueue.enqueue({ 0, 0,0, 2});
+    studentQueue.enqueue({ 1, 0, 0, 3 });
+    studentQueue.enqueue({ 3, 0, 0, 2 });
+    studentQueue.enqueue({ 2, 0, 0, 4 });
+
+    // Извеждаме студентите по ред на приоритет
+    while (!studentQueue.isEmpty()) {
+        StudentInfo student = studentQueue.dequeue();
+        std::cout << "Faculty: " << student.facultyNumber
+            << ", Course: " << student.course
+            << ", Time: " << student.time << "\n";
+    }
+
+
+
     return 0;
 }
 
