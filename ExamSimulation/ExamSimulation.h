@@ -268,6 +268,9 @@ void ProcessExam(InputData inputData, int roomCapacity)
 {
 
 	int GlobalTime = 0;
+	int LectorTakanTo = 0;
+	int LectorStartToWork = 0;
+	bool LectorIsActive = false;
 
 	// 1. Опапка с вдодните данне
 	std::queue<StudentInfo> studentArrivalData;
@@ -283,15 +286,92 @@ void ProcessExam(InputData inputData, int roomCapacity)
 	ExamRoom examRoom(roomCapacity);
 
 	// 4. Stack за непроверените работи
-	std::stack<StudentInfo> unckeckExdam;
+	std::stack<StudentRecord> unckeckExdam;
 
 	// 5. Stack за проверените работи
-	std::stack<StudentInfo> readyExdam;
+	std::stack<StudentRecord> readyExdam;
 
 	// procesing students exam
 	while (!studentArrivalData.empty() || !studentQueue.isEmpty() || !examRoom.students.empty())
 	{
-		break;
+		// полълване на студентската опашка / попълваме само тези които са пристугнали до този мемент (GlobalTime)
+		while (studentArrivalData.front().time <= GlobalTime)
+		{
+			StudentInfo studentInfo = studentArrivalData.front();
+			studentArrivalData.pop();
+			studentQueue.enqueue(studentInfo);
+		}
+		
+		// запълваме свободни места в залата / докато иам места или докато има студенти на опашката
+		while (!studentQueue.isEmpty() && examRoom.capacity > examRoom.students.size())
+		{
+			StudentInfo studentInfo = studentQueue.dequeue();
+			examRoom.addStudent(studentInfo.facultyNumber, studentInfo.time + GlobalTime);
+		}
+
+		// изчисляваме GlobalTime 
+		int nextStudentTimeArrival = studentArrivalData.empty() ? GlobalTime : studentArrivalData.front().time;
+		int mixFinishTimeForWorkingStudent = examRoom.students.size() == 0 ? GlobalTime : examRoom.minTime();
+		int maxCurrentTime = std::max(nextStudentTimeArrival, mixFinishTimeForWorkingStudent);
+
+		GlobalTime = maxCurrentTime;
+
+		// предаваме работите които са ориключили в това време 
+		if (maxCurrentTime == mixFinishTimeForWorkingStudent)
+		{
+			std::vector<StudentRecord> studentFinishedExam = examRoom.removeStudentWithMinTime();
+			
+			// update unchecket to checked exam 
+			if (!LectorIsActive && GlobalTime >= inputData.lectorInfo.arrivalMunute)
+			{
+				LectorIsActive = true;
+				LectorTakanTo = GlobalTime + studentFinishedExam.size() * inputData.lectorInfo.timeForCheck;
+				LectorStartToWork = GlobalTime;
+			}
+			else
+			{
+				int lectorTimeInterval = GlobalTime = LectorStartToWork;
+				int checkedCount = lectorTimeInterval / inputData.lectorInfo.timeForCheck;
+				int count = 0;
+				while (count < checkedCount && !unckeckExdam.empty())
+				{
+					StudentRecord studentRecord = unckeckExdam.top();
+					studentRecord.finishTime = LectorStartToWork + count * inputData.lectorInfo.timeForCheck;
+					readyExdam.push(studentRecord);
+					unckeckExdam.pop();
+				}
+
+				bool holdExamInHands = !unckeckExdam.empty() && lectorTimeInterval % inputData.lectorInfo.timeForCheck != 0;
+				if (holdExamInHands)
+				{
+					StudentRecord studentRecord = unckeckExdam.top();
+					studentRecord.finishTime = LectorStartToWork +  (count + 1)  *  inputData.lectorInfo.timeForCheck;
+					readyExdam.push(studentRecord);
+					unckeckExdam.pop();
+					LectorStartToWork = LectorStartToWork + (count + 1) * inputData.lectorInfo.timeForCheck;
+				}
+				else
+				{
+					if (!unckeckExdam.empty())
+					{
+						LectorStartToWork = LectorStartToWork + (count) * inputData.lectorInfo.timeForCheck;
+					}
+					else
+					{
+						LectorStartToWork = GlobalTime;
+					}
+
+				}
+
+			}
+
+			// оставяне за проверка
+			for (StudentRecord studentRecord : studentFinishedExam)
+			{
+				unckeckExdam.push(studentRecord);
+			}
+		}
+		
 	}
 
 }
