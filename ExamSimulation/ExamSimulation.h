@@ -6,6 +6,7 @@
 #include <tuple>
 #include <queue>
 #include <stack>
+#include <algorithm>  
 
 // Структура за информацията за залата
 struct RoomInfo {
