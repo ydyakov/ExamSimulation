@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExamSimulation.h" />
+    <ClInclude Include="ProcessExam.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />
