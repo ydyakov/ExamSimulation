@@ -15,18 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ExamSimulation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExamSimulation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProcessExam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

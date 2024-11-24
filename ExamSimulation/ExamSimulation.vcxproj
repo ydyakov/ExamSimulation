@@ -139,12 +139,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ExamSimulation.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExamSimulation.h" />
-    <ClInclude Include="ProcessExam.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />

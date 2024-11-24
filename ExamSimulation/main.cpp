@@ -1,5 +1,4 @@
 ﻿#include "ExamSimulation.h"
-#include "ProcessExam.h"
 
 
 InputData readInputData(const std::string& filename) {
