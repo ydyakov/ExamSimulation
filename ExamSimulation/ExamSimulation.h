@@ -295,7 +295,7 @@ void ProcessExam(InputData inputData, int roomCapacity)
 	while (!studentArrivalData.empty() || !studentQueue.isEmpty() || !examRoom.students.empty())
 	{
 		// полълване на студентската опашка / попълваме само тези които са пристугнали до този мемент (GlobalTime)
-		while (studentArrivalData.front().time <= GlobalTime)
+		while (!studentArrivalData.empty() && studentArrivalData.front().time <= GlobalTime )
 		{
 			StudentInfo studentInfo = studentArrivalData.front();
 			studentArrivalData.pop();
@@ -306,13 +306,13 @@ void ProcessExam(InputData inputData, int roomCapacity)
 		while (!studentQueue.isEmpty() && examRoom.capacity > examRoom.students.size())
 		{
 			StudentInfo studentInfo = studentQueue.dequeue();
-			examRoom.addStudent(studentInfo.facultyNumber, studentInfo.time + GlobalTime);
+			examRoom.addStudent(studentInfo.facultyNumber, studentInfo.duration + GlobalTime);
 		}
 
 		// изчисляваме GlobalTime 
-		int nextStudentTimeArrival = studentArrivalData.empty() ? GlobalTime : studentArrivalData.front().time;
+		int nextStudentTimeArrival = studentArrivalData.empty() ? examRoom.minTime() : studentArrivalData.front().time;
 		int mixFinishTimeForWorkingStudent = examRoom.students.size() == 0 ? GlobalTime : examRoom.minTime();
-		int maxCurrentTime = std::max(nextStudentTimeArrival, mixFinishTimeForWorkingStudent);
+		int maxCurrentTime = std::min(nextStudentTimeArrival, mixFinishTimeForWorkingStudent);
 
 		GlobalTime = maxCurrentTime;
 
@@ -328,9 +328,9 @@ void ProcessExam(InputData inputData, int roomCapacity)
 				LectorTakanTo = GlobalTime + studentFinishedExam.size() * inputData.lectorInfo.timeForCheck;
 				LectorStartToWork = GlobalTime;
 			}
-			else
+			else if (LectorIsActive && (GlobalTime - LectorStartToWork) > 0)
 			{
-				int lectorTimeInterval = GlobalTime = LectorStartToWork;
+				int lectorTimeInterval = GlobalTime - LectorStartToWork;
 				int checkedCount = lectorTimeInterval / inputData.lectorInfo.timeForCheck;
 				int count = 1;
 				while (count <= checkedCount && !unckeckExdam.empty())
@@ -373,17 +373,18 @@ void ProcessExam(InputData inputData, int roomCapacity)
 			}
 		}
 
-		// update rest of unchecket to checked exam
-		int count = 1;
-		while (!unckeckExdam.empty())
-		{
-			StudentRecord studentRecord = unckeckExdam.top();
-			studentRecord.finishTime = LectorStartToWork + count * inputData.lectorInfo.timeForCheck;
-			readyExdam.push(studentRecord);
-			unckeckExdam.pop();
-			count++;
-		}
+		
 		
 	}
 
+	// update rest of unchecket to checked exam when all studen finish exam
+	int count = 1;
+	while (!unckeckExdam.empty())
+	{
+		StudentRecord studentRecord = unckeckExdam.top();
+		studentRecord.finishTime = LectorStartToWork + count * inputData.lectorInfo.timeForCheck;
+		readyExdam.push(studentRecord);
+		unckeckExdam.pop();
+		count++;
+	}
 }
