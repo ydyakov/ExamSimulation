@@ -264,14 +264,23 @@ struct ExamRoom {
 	}
 };
 
-void ProcessExam(InputData inputData, int roomCapacity)
+struct ExamResult
 {
+	int StudentFinushTime;
+	int LectorFinichTime;
+	std::stack<StudentRecord> stackResult;
+};
+
+ExamResult ProcessExam(InputData inputData, int roomCapacity)
+{
+
+	ExamResult examResult;
 
 	int GlobalTime = 0;
 	int LectorTakanTo = 0;
 	int LectorStartToWork = 0;
 	bool LectorIsActive = false;
-
+	
 	// 1. Опапка с вдодните данне
 	std::queue<StudentInfo> studentArrivalData;
 	for (StudentInfo studentInfo : inputData.studentsArraival)
@@ -365,7 +374,7 @@ void ProcessExam(InputData inputData, int roomCapacity)
 				}
 
 			}
-
+				
 			// оставяне за проверка
 			for (StudentRecord studentRecord : studentFinishedExam)
 			{
@@ -377,6 +386,7 @@ void ProcessExam(InputData inputData, int roomCapacity)
 		
 	}
 
+	examResult.StudentFinushTime = GlobalTime;
 	// update rest of unchecket to checked exam when all studen finish exam
 	int count = 1;
 	while (!unckeckExdam.empty())
@@ -387,4 +397,9 @@ void ProcessExam(InputData inputData, int roomCapacity)
 		unckeckExdam.pop();
 		count++;
 	}
+
+	examResult.LectorFinichTime = readyExdam.top().finishTime;
+	examResult.stackResult = readyExdam;
+
+	return examResult;
 }

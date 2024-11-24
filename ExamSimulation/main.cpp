@@ -101,7 +101,7 @@ int main() {
             std::cout << std::endl;
         }
 
-        ProcessExam(inputData, optimalRoomConfiguration.capacity);
+        ExamResult examResult = ProcessExam(inputData, optimalRoomConfiguration.capacity);
     }
     catch (const std::exception& ex) {
         std::cerr << "Error: " << ex.what() << std::endl;
